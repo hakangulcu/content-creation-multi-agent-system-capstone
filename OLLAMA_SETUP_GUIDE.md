@@ -595,6 +595,6 @@ You know everything is working correctly when:
 
 ---
 
-**Last Updated**: July 2025  
+**Last Updated**: August 2025  
 **Ollama Version**: 0.2.1+  
 **Compatibility**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)

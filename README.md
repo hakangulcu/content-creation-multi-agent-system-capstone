@@ -572,7 +572,7 @@ git push origin feature/new-feature
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project was developed as part of the AAIDC Module 2 certification program.
+This project was developed as part of the AAIDC Module 3 certification program.
 
 ## Acknowledgments
 
@@ -599,5 +599,5 @@ This project was developed as part of the AAIDC Module 2 certification program.
 
 **Ready to create amazing content with zero API costs? Let's get started!**
 
-**Last Updated**: July 2025  
+**Last Updated**: August 2025  
 **Version**: 2.0.0 (Ollama Implementation)
