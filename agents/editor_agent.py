@@ -234,7 +234,12 @@ class EditorAgent:
         logger.info(f"Editor Agent: Editing completed - {word_count} words, "
                    f"readability: {final_analysis_result.get('readability_score', 'N/A')}")
         
-        return state
+        # Return only the updates to the state as a dictionary
+        return {
+            "draft": updated_draft,
+            "analysis": content_analysis,
+            "metadata": state["metadata"]
+        }
     
     def _create_editing_prompt(self, draft, request, analysis_result) -> str:
         """

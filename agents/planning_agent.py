@@ -137,7 +137,12 @@ class PlanningAgent:
         state["metadata"]["estimated_sections"] = len(enhanced_plan.outline)
         
         logger.info(f"Planning Agent: Content plan created - '{enhanced_plan.title}'")
-        return state
+        
+        # Return only the updates to the state as a dictionary
+        return {
+            "content_plan": enhanced_plan,
+            "metadata": state["metadata"]
+        }
     
     def _create_planning_prompt(self, request, research) -> str:
         """

@@ -143,7 +143,12 @@ class WriterAgent:
         state["metadata"]["research_integration_score"] = self._assess_research_integration(draft, research)
         
         logger.info(f"Writer Agent: Content created - {word_count} words, {reading_time} min read")
-        return state
+        
+        # Return only the updates to the state as a dictionary
+        return {
+            "draft": draft,
+            "metadata": state["metadata"]
+        }
     
     def _create_writing_prompt(self, request, plan, research) -> str:
         """

@@ -161,6 +161,7 @@ class SEOAgent:
         draft = state["draft"]
         plan = state["content_plan"]
         request = state["request"]
+        analysis = state.get("analysis")  # May be None if editor hasn't run yet
         
         logger.info(f"SEO Agent: Optimizing content for search engines")
         
@@ -223,7 +224,26 @@ class SEOAgent:
             logger.info(f"SEO Agent: Content optimized - SEO score improved to {final_seo_analysis.get('seo_score', 'N/A')}")
         else:
             final_seo_analysis = seo_analysis
+            updated_draft = draft  # Use original draft if no optimization needed
             logger.info(f"SEO Agent: No optimization needed - current SEO score: {seo_analysis.get('seo_score', 'N/A')}")
+        
+        # Update analysis with final SEO results
+        if analysis:
+            analysis.seo_score = final_seo_analysis.get("seo_score", 0)
+            analysis.keyword_analysis = final_seo_analysis.get("keyword_analysis", {})
+            updated_analysis = analysis
+        else:
+            # Create new analysis if none exists
+            from .editor_agent import ContentAnalysis
+            updated_analysis = ContentAnalysis(
+                readability_score=70,  # Default value
+                reading_level="Average",
+                word_count=draft.word_count,
+                reading_time=draft.reading_time,
+                seo_score=final_seo_analysis.get("seo_score", 0),
+                keyword_analysis=final_seo_analysis.get("keyword_analysis", {}),
+                improvement_suggestions=[]
+            )
         
         # Update workflow state with SEO metrics
         # Initialize metadata if not present
@@ -239,7 +259,12 @@ class SEOAgent:
             seo_analysis.get("seo_score", 0), final_seo_analysis.get("seo_score", 0)
         )
         
-        return state
+        # Return only the updates to the state as a dictionary
+        return {
+            "draft": updated_draft,
+            "analysis": updated_analysis,
+            "metadata": state["metadata"]
+        }
     
     def _assess_optimization_needs(self, seo_analysis: Dict[str, Any], request) -> bool:
         """

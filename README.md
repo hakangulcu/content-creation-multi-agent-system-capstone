@@ -14,7 +14,7 @@ A production-ready, **fully offline** content creation system powered by 6 speci
 - **Complete Privacy**: Runs entirely offline with local Ollama models
 - **Production Security**: Input validation, content filtering, and structured logging
 - **Resilient Operations**: Retry logic, circuit breakers, and graceful error handling
-- **Web Interface**: Beautiful Streamlit UI for non-technical users
+- **Web Interface**: Beautiful Streamlit UI with real-time progress and visual feedback
 - **Comprehensive Testing**: 85%+ test coverage with unit, integration, and E2E tests
 - **Performance Monitoring**: Real-time metrics and system health monitoring
 - **Multi-Format Output**: Blog posts, articles, social media, newsletters, and more
@@ -234,6 +234,9 @@ graph TD
    
    # Or basic demo
    python main.py
+   
+   # Or run the web interface
+   streamlit run streamlit_app.py
    ```
 
 ## Usage Examples
@@ -273,13 +276,43 @@ async def create_content():
 asyncio.run(create_content())
 ```
 
-### Interactive Demo
+### Web Interface (Streamlit)
+
+The system includes a beautiful web interface for non-technical users:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+**Streamlit Features:**
+- **User-Friendly Interface**: No coding required - just fill out forms
+- **Real-Time Progress**: Watch agents work through the pipeline
+- **Visual Feedback**: Progress bars, status updates, and live metrics
+- **Content Preview**: See generated content before saving
+- **Download Options**: Export content in multiple formats
+- **Settings Panel**: Adjust model parameters and preferences
+- **History Tracking**: View previously generated content
+
+**How to Use the Web Interface:**
+1. **Launch**: Run `streamlit run streamlit_app.py`
+2. **Open Browser**: Navigate to `http://localhost:8501`
+3. **Fill Form**: Enter your topic, content type, and requirements
+4. **Generate**: Click "Generate Content" and watch the progress
+5. **Review**: Preview the generated content and quality metrics
+6. **Save**: Download or copy your finished content
+
+**Web Interface vs CLI:**
+- **Streamlit UI**: Perfect for business users, content creators, and non-technical users
+- **CLI Demo**: Ideal for developers, testing, and automation scripts
+- **Both**: Access the same powerful multi-agent system with different interfaces
+
+### Interactive Demo (CLI)
 
 ```bash
 python demo.py
 ```
 
-**Demo Options:**
+**CLI Demo Options:**
 1. Run All Predefined Demos (4 different content types)
 2. Interactive Custom Demo (user-defined topics)
 3. Performance Benchmark (speed testing)

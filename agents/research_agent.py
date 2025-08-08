@@ -175,7 +175,12 @@ class ResearchAgent:
         state["metadata"]["research_quality_score"] = self._calculate_research_quality(research_data)
         
         logger.info(f"Research Agent: Completed research with {len(all_sources)} sources")
-        return state
+        
+        # Return only the updates to the state as a dictionary
+        return {
+            "research_data": research_data,
+            "metadata": state["metadata"]
+        }
     
     def _generate_research_queries(self, request) -> List[str]:
         """
