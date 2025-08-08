@@ -88,7 +88,7 @@ logs/
     main_py_content = '''#!/usr/bin/env python3
 """
 Content Creation Multi-Agent System
-AAIDC Module 2 Project
+AAIDC Module 3 Project
 
 This script demonstrates a sophisticated multi-agent system for automated content creation.
 """
@@ -925,7 +925,7 @@ async def demo_content_creation():
 def main():
     """Main entry point"""
     print("Content Creation Multi-Agent System")
-    print("AAIDC Module 2 Project")
+    print("AAIDC Module 3 Project")
     print("=" * 50)
     
     # Run demo
@@ -941,7 +941,7 @@ if __name__ == "__main__":
     demo_py_content = '''#!/usr/bin/env python3
 """
 Content Creation Multi-Agent System Demo
-AAIDC Module 2 Project
+AAIDC Module 3 Project
 
 This script demonstrates various use cases of the multi-agent content creation system.
 """
@@ -1072,7 +1072,7 @@ async def main():
     """Main demo function"""
     
     print("🎉 Content Creation Multi-Agent System Demo")
-    print("AAIDC Module 2 Project - Local Ollama Version")
+    print("AAIDC Module 3 Project - Local Ollama Version")
     print("=" * 70)
     
     # Check Ollama configuration

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Content Creation Multi-Agent System
-AAIDC Module 2 Project
+AAIDC Module 3 Project
 
 This script demonstrates a sophisticated multi-agent system for automated content creation.
 """
@@ -704,7 +704,7 @@ def _save_content_function(content: str, filename: str) -> Dict[str, str]:
 def main():
     """Main entry point"""
     print("Content Creation Multi-Agent System")
-    print("AAIDC Module 2 Project")
+    print("AAIDC Module 3 Project")
     print("=" * 50)
     
     # Run demo

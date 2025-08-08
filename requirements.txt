@@ -1,5 +1,5 @@
 # Content Creation Multi-Agent System Dependencies
-# AAIDC Module 2 Project - Local Ollama Version
+# AAIDC Module 3 Project - Local Ollama Version
 
 # Core LangChain and LangGraph dependencies (compatible versions)
 langchain>=0.2.0

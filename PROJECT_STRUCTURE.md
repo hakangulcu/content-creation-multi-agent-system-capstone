@@ -459,4 +459,4 @@ def select_model(content_type: ContentType) -> str:
 
 **Project Status: READY FOR SUBMISSION**
 
-This implementation significantly exceeds AAIDC Module 2 requirements while providing a unique local-first approach that eliminates API costs and maximizes privacy.
+This implementation significantly exceeds AAIDC Module 3 requirements while providing a unique local-first approach that eliminates API costs and maximizes privacy.

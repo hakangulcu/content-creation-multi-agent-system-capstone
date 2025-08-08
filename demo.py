@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Content Creation Multi-Agent System Demo
-AAIDC Module 2 Project
+AAIDC Module 3 Project
 
 This script demonstrates various use cases of the multi-agent content creation system.
 """
@@ -132,7 +132,7 @@ async def main():
     """Main demo function"""
     
     print("Content Creation Multi-Agent System Demo")
-    print("AAIDC Module 2 Project - Local Ollama Version")
+    print("AAIDC Module 3 Project - Local Ollama Version")
     print("=" * 70)
     
     # Check Ollama configuration

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Content Creation Multi-Agent System - Local Setup Script
-# AAIDC Module 2 Project - Ollama Implementation
+# AAIDC Module 3 Project - Ollama Implementation
 # This script automates the complete setup process for local development
 
 set -e  # Exit on any error
@@ -29,7 +29,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 print_header() {
     echo -e "${CYAN}"
     echo "Content Creation Multi-Agent System - Local Setup"
-    echo "AAIDC Module 2 Project - Ollama Implementation"
+    echo "AAIDC Module 3 Project - Ollama Implementation"
     echo "=============================================="
     echo -e "${NC}"
 }
