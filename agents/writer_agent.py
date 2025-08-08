@@ -133,6 +133,11 @@ class WriterAgent:
         
         # Update workflow state
         state["draft"] = draft
+        
+        # Initialize metadata if not present
+        if "metadata" not in state:
+            state["metadata"] = {}
+        
         state["metadata"]["writing_completed"] = datetime.now().isoformat()
         state["metadata"]["content_quality_score"] = self._assess_content_quality(draft, request)
         state["metadata"]["research_integration_score"] = self._assess_research_integration(draft, research)

@@ -28,30 +28,30 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Functions
 print_header() {
     echo -e "${CYAN}"
-    echo "🚀 Content Creation Multi-Agent System - Local Setup"
+    echo "Content Creation Multi-Agent System - Local Setup"
     echo "AAIDC Module 2 Project - Ollama Implementation"
     echo "=============================================="
     echo -e "${NC}"
 }
 
 print_step() {
-    echo -e "${BLUE}📋 Step $1: $2${NC}"
+    echo -e "${BLUE}Step $1: $2${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 print_info() {
-    echo -e "${PURPLE}ℹ️  $1${NC}"
+    echo -e "${PURPLE}[INFO] $1${NC}"
 }
 
 # Check if command exists
@@ -421,7 +421,7 @@ test_system() {
 try:
     from main import ContentCreationWorkflow, ContentRequest, ContentType
     from main import web_search_tool, content_analysis_tool
-    print('✅ All imports successful')
+    print('[OK] All imports successful')
 except ImportError as e:
     print(f'❌ Import failed: {e}')
     exit(1)
@@ -455,9 +455,9 @@ except ImportError as e:
 try:
     from main import web_search_tool
     result = web_search_tool.invoke({'query': 'test', 'max_results': 1})
-    print('✅ Web search test passed')
+    print('[OK] Web search test passed')
 except Exception as e:
-    print(f'⚠️  Web search test failed: {e}')
+    print(f'[WARNING] Web search test failed: {e}')
 "; then
         print_success "Web search test passed"
     else
@@ -470,7 +470,7 @@ except Exception as e:
 try:
     from main import content_analysis_tool
     result = content_analysis_tool.invoke({'content': 'Test content for analysis.'})
-    print('✅ Content analysis test passed')
+    print('[OK] Content analysis test passed')
 except Exception as e:
     print(f'❌ Content analysis test failed: {e}')
     exit(1)
@@ -496,7 +496,7 @@ create_launchers() {
 #!/bin/bash
 # Start Content Creation System
 
-echo "🚀 Starting Content Creation Multi-Agent System..."
+echo "Starting Content Creation Multi-Agent System..."
 
 # Activate virtual environment
 if [[ -f "venv/bin/activate" ]]; then
@@ -516,14 +516,14 @@ if ! curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
     # Wait for Ollama to start
     for i in {1..30}; do
         if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
-            echo "✅ Ollama server started"
+            echo "[OK] Ollama server started"
             break
         fi
         sleep 1
     done
 fi
 
-echo "🎯 System ready! You can now run:"
+echo "System ready! You can now run:"
 echo "  python main.py          # Basic demo"
 echo "  python demo.py          # Interactive demo"
 echo "  python test_agents.py   # Run tests"
@@ -558,15 +558,15 @@ print_final_instructions() {
     echo -e "${CYAN}Your Content Creation Multi-Agent System is ready!${NC}"
     echo ""
     
-    echo -e "${YELLOW}📋 What was installed:${NC}"
-    echo "  ✅ Ollama server with $DEFAULT_MODEL model"
-    echo "  ✅ Python virtual environment with all dependencies"
-    echo "  ✅ NLTK data for content analysis"
-    echo "  ✅ Configuration files and output directories"
-    echo "  ✅ Launcher scripts for easy startup"
+    echo -e "${YELLOW}What was installed:${NC}"
+    echo "  [OK] Ollama server with $DEFAULT_MODEL model"
+    echo "  [OK] Python virtual environment with all dependencies"
+    echo "  [OK] NLTK data for content analysis"
+    echo "  [OK] Configuration files and output directories"
+    echo "  [OK] Launcher scripts for easy startup"
     echo ""
     
-    echo -e "${YELLOW}🚀 Quick Start:${NC}"
+    echo -e "${YELLOW}Quick Start:${NC}"
     echo "  # Option 1: Use launcher scripts"
     echo "  ./start_system.sh       # Start system"
     echo "  ./run_demo.sh           # Run interactive demo"
@@ -582,14 +582,14 @@ print_final_instructions() {
     echo "  python test_agents.py   # Run tests"
     echo ""
     
-    echo -e "${YELLOW}📊 System Information:${NC}"
+    echo -e "${YELLOW}System Information:${NC}"
     echo "  Model: $DEFAULT_MODEL"
     echo "  RAM: ${TOTAL_RAM_GB}GB"
     echo "  Ollama: http://localhost:11434"
     echo "  Output: ./outputs/"
     echo ""
     
-    echo -e "${YELLOW}💡 Tips:${NC}"
+    echo -e "${YELLOW}Tips:${NC}"
     echo "  • Run 'ollama list' to see downloaded models"
     echo "  • Check 'outputs/' directory for generated content"
     echo "  • Use Ctrl+C to stop the demo"
@@ -597,14 +597,14 @@ print_final_instructions() {
     echo ""
     
     if [[ $TOTAL_RAM_GB -lt $RECOMMENDED_RAM_GB ]]; then
-        echo -e "${YELLOW}⚠️  RAM Warning:${NC}"
+        echo -e "${YELLOW}[WARNING] RAM Warning:${NC}"
         echo "  Your system has ${TOTAL_RAM_GB}GB RAM (${RECOMMENDED_RAM_GB}GB recommended)"
         echo "  Consider using 'phi3:mini' model for better performance"
         echo "  Edit .env file: OLLAMA_MODEL=phi3:mini"
         echo ""
     fi
     
-    echo -e "${CYAN}🎯 Ready to create amazing content with zero API costs!${NC}"
+    echo -e "${CYAN}Ready to create amazing content with zero API costs!${NC}"
     echo ""
 }
 

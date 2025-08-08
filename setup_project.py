@@ -11,21 +11,21 @@ def create_file(filename, content):
     try:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(content)
-        print(f"✅ Created: {filename}")
+        print(f"Created: {filename}")
     except Exception as e:
-        print(f"❌ Failed to create {filename}: {e}")
+        print(f"Failed to create {filename}: {e}")
 
 def create_directory(dirname):
     """Create a directory if it doesn't exist"""
     try:
         os.makedirs(dirname, exist_ok=True)
-        print(f"✅ Directory: {dirname}")
+        print(f"Directory: {dirname}")
     except Exception as e:
-        print(f"❌ Failed to create directory {dirname}: {e}")
+        print(f"Failed to create directory {dirname}: {e}")
 
 def setup_project():
     """Set up the complete project structure"""
-    print("🚀 Setting up Content Creation Multi-Agent System")
+    print("Setting up Content Creation Multi-Agent System")
     print("=" * 60)
     
     # Create directories
@@ -871,17 +871,17 @@ async def demo_content_creation():
     model_name = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
-    print(f"🤖 Using Ollama model: {model_name}")
-    print(f"🌐 Ollama server: {base_url}")
+    print(f"Using Ollama model: {model_name}")
+    print(f" Ollama server: {base_url}")
     
     # Create workflow
     try:
         workflow = ContentCreationWorkflow(model_name=model_name, base_url=base_url)
-        print("✅ Ollama connection established")
+        print("[OK] Ollama connection established")
     except Exception as e:
-        print(f"❌ Failed to connect to Ollama: {e}")
-        print("💡 Make sure Ollama is running: ollama serve")
-        print(f"💡 And the model is installed: ollama pull {model_name}")
+        print(f"[FAIL] Failed to connect to Ollama: {e}")
+        print("[TIP] Make sure Ollama is running: ollama serve")
+        print(f"[TIP] And the model is installed: ollama pull {model_name}")
         return
     
     # Define a content request
@@ -895,21 +895,21 @@ async def demo_content_creation():
         special_requirements="Include recent statistics and real-world examples"
     )
     
-    print("🚀 Starting Multi-Agent Content Creation System")
-    print(f"📝 Topic: {request.topic}")
-    print(f"🎯 Target: {request.target_audience}")
-    print(f"📊 Length: {request.word_count} words")
+    print(" Starting Multi-Agent Content Creation System")
+    print(f" Topic: {request.topic}")
+    print(f" Target: {request.target_audience}")
+    print(f" Length: {request.word_count} words")
     print("-" * 60)
     
     try:
         # Execute workflow
         result = await workflow.create_content(request)
         
-        print("\\n✅ Content Creation Completed Successfully!")
-        print(f"📄 Final word count: {result.draft.word_count}")
-        print(f"⏱️ Reading time: {result.draft.reading_time} minutes")
+        print("\\n[OK] Content Creation Completed Successfully!")
+        print(f" Final word count: {result.draft.word_count}")
+        print(f" Reading time: {result.draft.reading_time} minutes")
         print(f"📁 Saved to: {result.metadata.get('output_file', 'N/A')}")
-        print(f"🔍 SEO Score: {result.metadata.get('seo_score', 'N/A')}")
+        print(f" SEO Score: {result.metadata.get('seo_score', 'N/A')}")
         
         # Display content preview
         if result.final_content:
@@ -919,7 +919,7 @@ async def demo_content_creation():
             print(preview)
         
     except Exception as e:
-        print(f"❌ Error during content creation: {e}")
+        print(f"[FAIL] Error during content creation: {e}")
         logger.error(f"Content creation failed: {e}")
 
 def main():
@@ -1014,10 +1014,10 @@ DEMO_REQUESTS = [
 async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) -> dict:
     """Run a single demo and return results"""
     
-    print(f"\\n🚀 Starting Demo: {demo_config['name']}")
-    print(f"📝 Topic: {demo_config['request'].topic}")
-    print(f"🎯 Type: {demo_config['request'].content_type.value}")
-    print(f"📊 Target: {demo_config['request'].word_count} words")
+    print(f"\\n Starting Demo: {demo_config['name']}")
+    print(f" Topic: {demo_config['request'].topic}")
+    print(f" Type: {demo_config['request'].content_type.value}")
+    print(f" Target: {demo_config['request'].word_count} words")
     print("-" * 60)
     
     start_time = time.time()
@@ -1041,11 +1041,11 @@ async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) 
             "error": None
         }
         
-        print(f"✅ Demo Completed Successfully!")
-        print(f"⏱️ Duration: {duration:.1f} seconds")
-        print(f"📄 Word count: {demo_result['word_count']}")
+        print(f"[OK] Demo Completed Successfully!")
+        print(f" Duration: {duration:.1f} seconds")
+        print(f" Word count: {demo_result['word_count']}")
         print(f"📖 Reading time: {demo_result['reading_time']} minutes")
-        print(f"🔍 SEO Score: {demo_result['seo_score']}")
+        print(f" SEO Score: {demo_result['seo_score']}")
         print(f"📁 Saved to: {demo_result['output_file']}")
         
         return demo_result
@@ -1061,8 +1061,8 @@ async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) 
             "error": str(e)
         }
         
-        print(f"❌ Demo Failed: {e}")
-        print(f"💡 Common solutions:")
+        print(f"[FAIL] Demo Failed: {e}")
+        print(f"[TIP] Common solutions:")
         print(f"   • Check if Ollama is running: ollama serve")
         print(f"   • Verify model is installed: ollama pull {os.getenv('OLLAMA_MODEL', 'llama3.1:8b')}")
         print(f"   • Check system resources (RAM/CPU usage)")
@@ -1079,24 +1079,24 @@ async def main():
     model_name = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
-    print(f"🤖 Using Ollama model: {model_name}")
-    print(f"🌐 Ollama server: {base_url}")
+    print(f"Using Ollama model: {model_name}")
+    print(f" Ollama server: {base_url}")
     
     # Initialize workflow
-    print("🔧 Initializing Content Creation Workflow...")
+    print(" Initializing Content Creation Workflow...")
     try:
         workflow = ContentCreationWorkflow(model_name=model_name, base_url=base_url)
-        print("✅ Workflow initialized successfully")
+        print("[OK] Workflow initialized successfully")
         
         # Test Ollama connection
-        print("🔍 Testing Ollama connection...")
+        print(" Testing Ollama connection...")
         test_messages = [HumanMessage(content="Hello, respond with just 'OK' if you can hear me.")]
         response = await workflow.llm.ainvoke(test_messages)
-        print(f"✅ Ollama connection test successful: {response.content[:50]}...")
+        print(f"[OK] Ollama connection test successful: {response.content[:50]}...")
         
     except Exception as e:
-        print(f"❌ Failed to initialize workflow: {e}")
-        print("\\n🔧 Troubleshooting Steps:")
+        print(f"[FAIL] Failed to initialize workflow: {e}")
+        print("\\n Troubleshooting Steps:")
         print("1. Make sure Ollama is running:")
         print("   ollama serve")
         print(f"2. Install the required model:")
@@ -1108,18 +1108,18 @@ async def main():
     
     # Demo menu
     while True:
-        print("\\n🎯 Demo Options:")
-        print("1. 🚀 Run All Predefined Demos")
-        print("2. 🎮 Interactive Custom Demo") 
-        print("3. 🏃‍♂️ Performance Benchmark")
-        print("4. 📋 Show Demo Descriptions")
+        print("\\n Demo Options:")
+        print("1.  Run All Predefined Demos")
+        print("2.  Interactive Custom Demo") 
+        print("3.  Performance Benchmark")
+        print("4.  Show Demo Descriptions")
         print("5. 👋 Exit")
         
         choice = input("\\nSelect option (1-5): ").strip()
         
         if choice == "1":
             # Run all predefined demos
-            print(f"\\n🚀 Running {len(DEMO_REQUESTS)} Predefined Demos")
+            print(f"\\n Running {len(DEMO_REQUESTS)} Predefined Demos")
             results = []
             
             for demo_config in DEMO_REQUESTS:
@@ -1128,25 +1128,25 @@ async def main():
                 
                 # Brief pause between demos
                 if demo_config != DEMO_REQUESTS[-1]:
-                    print("\\n⏸️ Pausing 5 seconds before next demo...")
+                    print("\\n Pausing 5 seconds before next demo...")
                     await asyncio.sleep(5)
             
             # Summary
-            print("\\n📊 Demo Summary:")
+            print("\\n Demo Summary:")
             print("-" * 40)
             successful = sum(1 for r in results if r['success'])
             total_time = sum(r['duration'] for r in results)
             
-            print(f"✅ Successful demos: {successful}/{len(results)}")
-            print(f"⏱️ Total time: {total_time:.1f} seconds")
-            print(f"📊 Average time: {total_time/len(results):.1f} seconds")
+            print(f"[OK] Successful demos: {successful}/{len(results)}")
+            print(f" Total time: {total_time:.1f} seconds")
+            print(f" Average time: {total_time/len(results):.1f} seconds")
             
             for result in results:
-                status = "✅" if result['success'] else "❌"
+                status = "[OK]" if result['success'] else "[FAIL]"
                 print(f"{status} {result['name']}: {result['duration']:.1f}s")
         
         elif choice == "2":
-            print("\\n🎮 Interactive Demo - Create Custom Content")
+            print("\\n Interactive Demo - Create Custom Content")
             topic = input("Enter topic: ").strip() or "Benefits of AI in Education"
             
             request = ContentRequest(
@@ -1163,7 +1163,7 @@ async def main():
             await run_single_demo(workflow, demo_config)
         
         elif choice == "3":
-            print("\\n🏃‍♂️ Performance Benchmark")
+            print("\\n Performance Benchmark")
             # Simple benchmark
             request = ContentRequest(
                 topic="Future of Remote Work",
@@ -1179,12 +1179,12 @@ async def main():
             result = await workflow.create_content(request)
             duration = time.time() - start
             
-            print(f"⏱️ Benchmark completed in {duration:.1f} seconds")
-            print(f"📊 Words generated: {result.draft.word_count}")
-            print(f"🔍 Words per second: {result.draft.word_count/duration:.1f}")
+            print(f" Benchmark completed in {duration:.1f} seconds")
+            print(f" Words generated: {result.draft.word_count}")
+            print(f" Words per second: {result.draft.word_count/duration:.1f}")
         
         elif choice == "4":
-            print("\\n📋 Demo Descriptions:")
+            print("\\n Demo Descriptions:")
             for i, demo in enumerate(DEMO_REQUESTS, 1):
                 print(f"{i}. {demo['name']}")
                 print(f"   Topic: {demo['request'].topic}")
@@ -1197,7 +1197,7 @@ async def main():
             break
         
         else:
-            print("❌ Invalid option. Please select 1-5.")
+            print("[FAIL] Invalid option. Please select 1-5.")
 
 if __name__ == "__main__":
     asyncio.run(main())

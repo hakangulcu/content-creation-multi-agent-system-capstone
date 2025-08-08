@@ -114,14 +114,24 @@ class PlanningAgent:
         ]
         
         # Generate content plan using LLM
-        response = await self.llm.ainvoke(messages)
-        content_plan = self._parse_plan_response(response.content, request)
+        try:
+            response = await self.llm.ainvoke(messages)
+            content_plan = self._parse_plan_response(response.content, request)
+        except Exception as e:
+            logger.error(f"Planning Agent: LLM error - {e}")
+            # Create fallback plan
+            content_plan = self._create_fallback_plan(request)
         
         # Enhance plan with strategic analysis
         enhanced_plan = self._enhance_content_plan(content_plan, request, research)
         
         # Update workflow state
         state["content_plan"] = enhanced_plan
+        
+        # Initialize metadata if not present
+        if "metadata" not in state:
+            state["metadata"] = {}
+        
         state["metadata"]["planning_completed"] = datetime.now().isoformat()
         state["metadata"]["plan_complexity_score"] = self._calculate_plan_complexity(enhanced_plan)
         state["metadata"]["estimated_sections"] = len(enhanced_plan.outline)
@@ -268,7 +278,7 @@ class PlanningAgent:
             estimated_length=plan_data.get("estimated_length", request.word_count)
         )
     
-    def _create_fallback_plan(self, request) -> Dict[str, Any]:
+    def _create_fallback_plan(self, request) -> ContentPlan:
         """
         Create a fallback content plan when LLM parsing fails.
         
@@ -276,14 +286,14 @@ class PlanningAgent:
             request: Content creation request
             
         Returns:
-            Basic content plan structure
+            Basic ContentPlan object
         """
         topic = request.topic
         content_type = request.content_type.value
         
-        return {
-            "title": f"The Complete Guide to {topic}",
-            "outline": [
+        return ContentPlan(
+            title=f"The Complete Guide to {topic}",
+            outline=[
                 "Introduction and Overview",
                 f"Understanding {topic}: Fundamentals",
                 "Current State and Trends",
@@ -293,16 +303,16 @@ class PlanningAgent:
                 "Future Outlook and Predictions",
                 "Conclusion and Next Steps"
             ],
-            "key_points": [
+            key_points=[
                 f"Provide comprehensive overview of {topic}",
                 "Include current statistics and trends",
                 "Offer actionable insights and recommendations",
                 "Address common challenges and solutions",
                 "Maintain engaging, accessible tone"
             ],
-            "target_keywords": request.keywords or [topic],
-            "estimated_length": request.word_count
-        }
+            target_keywords=request.keywords or [topic],
+            estimated_length=request.word_count
+        )
     
     def _enhance_content_plan(self, plan: ContentPlan, request, research) -> ContentPlan:
         """

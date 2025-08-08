@@ -218,6 +218,11 @@ class EditorAgent:
         # Update workflow state
         state["draft"] = updated_draft
         state["analysis"] = content_analysis
+        
+        # Initialize metadata if not present
+        if "metadata" not in state:
+            state["metadata"] = {}
+        
         state["metadata"]["editing_completed"] = datetime.now().isoformat()
         state["metadata"]["readability_improvement"] = self._calculate_readability_improvement(
             analysis_result, final_analysis_result

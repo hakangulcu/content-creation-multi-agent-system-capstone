@@ -165,6 +165,11 @@ class ResearchAgent:
         
         # Update workflow state
         state["research_data"] = research_data
+        
+        # Initialize metadata if not present
+        if "metadata" not in state:
+            state["metadata"] = {}
+        
         state["metadata"]["research_completed"] = datetime.now().isoformat()
         state["metadata"]["research_sources_count"] = len(all_sources)
         state["metadata"]["research_quality_score"] = self._calculate_research_quality(research_data)

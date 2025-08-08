@@ -74,10 +74,10 @@ DEMO_REQUESTS = [
 async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) -> dict:
     """Run a single demo and return results"""
     
-    print(f"\n🚀 Starting Demo: {demo_config['name']}")
-    print(f"📝 Topic: {demo_config['request'].topic}")
-    print(f"🎯 Type: {demo_config['request'].content_type.value}")
-    print(f"📊 Target: {demo_config['request'].word_count} words")
+    print(f"\nStarting Demo: {demo_config['name']}")
+    print(f"Topic: {demo_config['request'].topic}")
+    print(f"Type: {demo_config['request'].content_type.value}")
+    print(f"Target: {demo_config['request'].word_count} words")
     print("-" * 60)
     
     start_time = time.time()
@@ -94,19 +94,19 @@ async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) 
             "name": demo_config['name'],
             "success": True,
             "duration": duration,
-            "word_count": result.draft.word_count if result.draft else 0,
-            "reading_time": result.draft.reading_time if result.draft else 0,
-            "seo_score": result.metadata.get('seo_score', 'N/A'),
-            "output_file": result.metadata.get('output_file', 'N/A'),
+            "word_count": result['draft'].word_count if result['draft'] else 0,
+            "reading_time": result['draft'].reading_time if result['draft'] else 0,
+            "seo_score": result['metadata'].get('seo_score', 'N/A'),
+            "output_file": result['metadata'].get('output_file', 'N/A'),
             "error": None
         }
         
-        print(f"✅ Demo Completed Successfully!")
-        print(f"⏱️ Duration: {duration:.1f} seconds")
-        print(f"📄 Word count: {demo_result['word_count']}")
-        print(f"📖 Reading time: {demo_result['reading_time']} minutes")
-        print(f"🔍 SEO Score: {demo_result['seo_score']}")
-        print(f"📁 Saved to: {demo_result['output_file']}")
+        print(f"Demo Completed Successfully!")
+        print(f"Duration: {duration:.1f} seconds")
+        print(f"Word count: {demo_result['word_count']}")
+        print(f"Reading time: {demo_result['reading_time']} minutes")
+        print(f"SEO Score: {demo_result['seo_score']}")
+        print(f"Saved to: {demo_result['output_file']}")
         
         return demo_result
         
@@ -121,8 +121,8 @@ async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) 
             "error": str(e)
         }
         
-        print(f"❌ Demo Failed: {e}")
-        print(f"💡 Common solutions:")
+        print(f"Demo Failed: {e}")
+        print(f"Common solutions:")
         print(f"   • Check if Ollama is running: ollama serve")
         print(f"   • Verify model is installed: ollama pull {os.getenv('OLLAMA_MODEL', 'llama3.1:8b')}")
         print(f"   • Check system resources (RAM/CPU usage)")
@@ -131,7 +131,7 @@ async def run_single_demo(workflow: ContentCreationWorkflow, demo_config: dict) 
 async def main():
     """Main demo function"""
     
-    print("🎉 Content Creation Multi-Agent System Demo")
+    print("Content Creation Multi-Agent System Demo")
     print("AAIDC Module 2 Project - Local Ollama Version")
     print("=" * 70)
     
@@ -139,24 +139,24 @@ async def main():
     model_name = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
-    print(f"🤖 Using Ollama model: {model_name}")
-    print(f"🌐 Ollama server: {base_url}")
+    print(f"Using Ollama model: {model_name}")
+    print(f"Ollama server: {base_url}")
     
     # Initialize workflow
-    print("🔧 Initializing Content Creation Workflow...")
+    print("Initializing Content Creation Workflow...")
     try:
         workflow = ContentCreationWorkflow(model_name=model_name, base_url=base_url)
-        print("✅ Workflow initialized successfully")
+        print("Workflow initialized successfully")
         
         # Test Ollama connection
-        print("🔍 Testing Ollama connection...")
+        print("Testing Ollama connection...")
         test_messages = [HumanMessage(content="Hello, respond with just 'OK' if you can hear me.")]
         response = await workflow.llm.ainvoke(test_messages)
-        print(f"✅ Ollama connection test successful: {response.content[:50]}...")
+        print(f"Ollama connection test successful: {response.content[:50]}...")
         
     except Exception as e:
-        print(f"❌ Failed to initialize workflow: {e}")
-        print("\n🔧 Troubleshooting Steps:")
+        print(f"Failed to initialize workflow: {e}")
+        print("\nTroubleshooting Steps:")
         print("1. Make sure Ollama is running:")
         print("   ollama serve")
         print(f"2. Install the required model:")
@@ -168,18 +168,18 @@ async def main():
     
     # Demo menu
     while True:
-        print("\n🎯 Demo Options:")
-        print("1. 🚀 Run All Predefined Demos")
-        print("2. 🎮 Interactive Custom Demo") 
-        print("3. 🏃‍♂️ Performance Benchmark")
-        print("4. 📋 Show Demo Descriptions")
-        print("5. 👋 Exit")
+        print("\nDemo Options:")
+        print("1. Run All Predefined Demos")
+        print("2. Interactive Custom Demo") 
+        print("3. Performance Benchmark")
+        print("4. Show Demo Descriptions")
+        print("5. Exit")
         
         choice = input("\nSelect option (1-5): ").strip()
         
         if choice == "1":
             # Run all predefined demos
-            print(f"\n🚀 Running {len(DEMO_REQUESTS)} Predefined Demos")
+            print(f"\nRunning {len(DEMO_REQUESTS)} Predefined Demos")
             results = []
             
             for demo_config in DEMO_REQUESTS:
@@ -188,25 +188,25 @@ async def main():
                 
                 # Brief pause between demos
                 if demo_config != DEMO_REQUESTS[-1]:
-                    print("\n⏸️ Pausing 5 seconds before next demo...")
+                    print("\nPausing 5 seconds before next demo...")
                     await asyncio.sleep(5)
             
             # Summary
-            print("\n📊 Demo Summary:")
+            print("\nDemo Summary:")
             print("-" * 40)
             successful = sum(1 for r in results if r['success'])
             total_time = sum(r['duration'] for r in results)
             
-            print(f"✅ Successful demos: {successful}/{len(results)}")
-            print(f"⏱️ Total time: {total_time:.1f} seconds")
-            print(f"📊 Average time: {total_time/len(results):.1f} seconds")
+            print(f"Successful demos: {successful}/{len(results)}")
+            print(f"Total time: {total_time:.1f} seconds")
+            print(f"Average time: {total_time/len(results):.1f} seconds")
             
             for result in results:
-                status = "✅" if result['success'] else "❌"
+                status = "[OK]" if result['success'] else "[FAIL]"
                 print(f"{status} {result['name']}: {result['duration']:.1f}s")
         
         elif choice == "2":
-            print("\n🎮 Interactive Demo - Create Custom Content")
+            print("\nInteractive Demo - Create Custom Content")
             topic = input("Enter topic: ").strip() or "Benefits of AI in Education"
             
             request = ContentRequest(
@@ -223,7 +223,7 @@ async def main():
             await run_single_demo(workflow, demo_config)
         
         elif choice == "3":
-            print("\n🏃‍♂️ Performance Benchmark")
+            print("\nPerformance Benchmark")
             # Simple benchmark
             request = ContentRequest(
                 topic="Future of Remote Work",
@@ -239,12 +239,12 @@ async def main():
             result = await workflow.create_content(request)
             duration = time.time() - start
             
-            print(f"⏱️ Benchmark completed in {duration:.1f} seconds")
-            print(f"📊 Words generated: {result.draft.word_count}")
-            print(f"🔍 Words per second: {result.draft.word_count/duration:.1f}")
+            print(f"Benchmark completed in {duration:.1f} seconds")
+            print(f"Words generated: {result['draft'].word_count}")
+            print(f"Words per second: {result['draft'].word_count/duration:.1f}")
         
         elif choice == "4":
-            print("\n📋 Demo Descriptions:")
+            print("\nDemo Descriptions:")
             for i, demo in enumerate(DEMO_REQUESTS, 1):
                 print(f"{i}. {demo['name']}")
                 print(f"   Topic: {demo['request'].topic}")
@@ -253,11 +253,11 @@ async def main():
                 print()
         
         elif choice == "5":
-            print("\n👋 Demo completed! Thanks for trying the system!")
+            print("\nDemo completed! Thanks for trying the system!")
             break
         
         else:
-            print("❌ Invalid option. Please select 1-5.")
+            print("Invalid option. Please select 1-5.")
 
 if __name__ == "__main__":
     asyncio.run(main())

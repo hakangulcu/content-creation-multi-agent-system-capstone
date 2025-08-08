@@ -94,11 +94,11 @@ curl http://localhost:11434/api/tags
 
 | Model | Download Size | RAM Required | Speed | Quality | Best For |
 |-------|--------------|--------------|-------|---------|----------|
-| `phi3:mini` | 2.3GB | 4GB | ⚡⚡⚡ | ⭐⭐⭐ | Quick testing, low-resource systems |
-| `mistral:7b` | 4.1GB | 6GB | ⚡⚡ | ⭐⭐⭐⭐ | Balanced usage, good performance |
-| `llama3.1:8b` | 4.7GB | 8GB | ⚡⚡ | ⭐⭐⭐⭐⭐ | **Recommended for production** |
-| `codellama:7b` | 3.8GB | 6GB | ⚡⚡ | ⭐⭐⭐⭐ | Technical content, code examples |
-| `llama3.1:70b` | 39GB | 64GB | ⚡ | ⭐⭐⭐⭐⭐ | Maximum quality, powerful hardware |
+| `phi3:mini` | 2.3GB | 4GB | Very Fast | Good | Quick testing, low-resource systems |
+| `mistral:7b` | 4.1GB | 6GB | Fast | Very Good | Balanced usage, good performance |
+| `llama3.1:8b` | 4.7GB | 8GB | Fast | Excellent | **Recommended for production** |
+| `codellama:7b` | 3.8GB | 6GB | Fast | Very Good | Technical content, code examples |
+| `llama3.1:70b` | 39GB | 64GB | Slow | Excellent | Maximum quality, powerful hardware |
 
 ### Model Installation Commands
 
@@ -215,19 +215,19 @@ pytest test_agents.py -v
 
 Expected output from `python main.py`:
 ```
-🤖 Using Ollama model: llama3.1:8b
-🌐 Ollama server: http://localhost:11434
-✅ Ollama connection established
-🚀 Starting Multi-Agent Content Creation System
-📝 Topic: Artificial Intelligence in Healthcare
-🎯 Target: Healthcare professionals and technology leaders
-📊 Length: 1500 words
+Using Ollama model: llama3.1:8b
+Ollama server: http://localhost:11434
+[OK] Ollama connection established
+Starting Multi-Agent Content Creation System
+Topic: Artificial Intelligence in Healthcare
+Target: Healthcare professionals and technology leaders
+Length: 1500 words
 ------------------------------------------------------------
-✅ Content Creation Completed Successfully!
-📄 Final word count: 1543
-⏱️ Reading time: 8 minutes
+[OK] Content Creation Completed Successfully!
+Final word count: 1543
+Reading time: 8 minutes
 📁 Saved to: outputs/Artificial_Intelligence_in_Healthcare_20250714_153045.md
-🔍 SEO Score: 87
+SEO Score: 87
 ```
 
 ## Troubleshooting Guide
@@ -552,7 +552,7 @@ sudo ufw deny 11434  # Linux
    - Enable GPU acceleration
    - Increase concurrent processing
 
-## 💡 Pro Tips
+## Pro Tips
 
 ### Performance Tips
 
@@ -584,12 +584,12 @@ sudo ufw deny 11434  # Linux
 
 You know everything is working correctly when:
 
-✅ `ollama serve` starts without errors  
-✅ `ollama list` shows your downloaded models  
-✅ `curl http://localhost:11434/api/tags` returns JSON  
-✅ `python main.py` generates content successfully  
-✅ `python demo.py` runs the interactive demo  
-✅ Content files appear in the `outputs/` directory  
+[OK] `ollama serve` starts without errors  
+[OK] `ollama list` shows your downloaded models  
+[OK] `curl http://localhost:11434/api/tags` returns JSON  
+[OK] `python main.py` generates content successfully  
+[OK] `python demo.py` runs the interactive demo  
+[OK] Content files appear in the `outputs/` directory  
 
 **Congratulations! You now have a fully functional, private, cost-free content creation system!**
 

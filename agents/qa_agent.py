@@ -150,10 +150,20 @@ class QualityAssuranceAgent:
         
         # Update workflow state with final results
         state["final_content"] = final_content_package
+        
+        # Initialize metadata if not present
+        if "metadata" not in state:
+            state["metadata"] = {}
+        
         state["metadata"]["qa_completed"] = datetime.now().isoformat()
         state["metadata"]["output_file"] = save_result.get("filepath", "")
         state["metadata"]["final_quality_score"] = quality_assessment.get("overall_score", 0)
         state["metadata"]["publication_ready"] = quality_assessment.get("publication_ready", False)
+        
+        # Initialize feedback_history if not present
+        if "feedback_history" not in state:
+            state["feedback_history"] = []
+        
         state["feedback_history"].append(quality_assessment.get("detailed_feedback", ""))
         
         logger.info(f"QA Agent: Content finalized and saved to {save_result.get('filepath', 'N/A')}")

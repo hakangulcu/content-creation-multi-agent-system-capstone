@@ -15,15 +15,15 @@ def test_import(package_name, import_name=None):
     
     try:
         importlib.import_module(import_name)
-        print(f"✅ {package_name}: Successfully imported")
+        print(f"{package_name}: Successfully imported")
         return True
     except ImportError as e:
-        print(f"❌ {package_name}: Import failed - {e}")
+        print(f"{package_name}: Import failed - {e}")
         return False
 
 def check_essential_packages():
     """Check if essential packages for our system work"""
-    print("🔍 Checking essential packages for Content Creation System...")
+    print("Checking essential packages for Content Creation System...")
     print("-" * 60)
     
     essential_packages = [
@@ -47,12 +47,12 @@ def check_essential_packages():
         else:
             failed_packages.append(package_name)
     
-    print(f"\n📊 Results:")
-    print(f"✅ Working packages: {len(working_packages)}")
+    print(f"\nResults:")
+    print(f"[OK] Working packages: {len(working_packages)}")
     print(f"❌ Failed packages: {len(failed_packages)}")
     
     if failed_packages:
-        print(f"\n🔧 Missing packages: {', '.join(failed_packages)}")
+        print(f"\n[WARNING] Missing packages: {', '.join(failed_packages)}")
         return False
     else:
         print(f"\n🎉 All essential packages are working!")
@@ -60,7 +60,7 @@ def check_essential_packages():
 
 def fix_conflicts():
     """Resolve the specific conflicts mentioned"""
-    print("\n🔧 Resolving dependency conflicts...")
+    print("\nResolving dependency conflicts...")
     
     # The conflicts we need to fix
     fixes = [
@@ -74,25 +74,25 @@ def fix_conflicts():
         print(f"  {fix}")
         try:
             subprocess.run(fix.split(), check=True, capture_output=True)
-            print(f"  ✅ Success")
+            print(f"  [OK] Success")
         except subprocess.CalledProcessError as e:
-            print(f"  ⚠️  Warning: {e}")
+            print(f"  [WARNING] Warning: {e}")
     
     # Remove conflicting packages if they're not essential
-    print("\n🗑️  Removing non-essential conflicting packages...")
+    print("\nRemoving non-essential conflicting packages...")
     non_essential = ["langchain-chroma", "langchain-openai", "twscrape"]
     
     for package in non_essential:
         try:
             subprocess.run(["pip", "uninstall", package, "-y"], 
                          check=True, capture_output=True)
-            print(f"  ✅ Removed {package}")
+            print(f"  [OK] Removed {package}")
         except subprocess.CalledProcessError:
-            print(f"  ℹ️  {package} not found (already removed)")
+            print(f"  [INFO] {package} not found (already removed)")
 
 def test_system():
     """Test if our content creation system works"""
-    print("\n🧪 Testing Content Creation System...")
+    print("\nTesting Content Creation System...")
     
     try:
         # Test basic imports
@@ -100,22 +100,22 @@ def test_system():
         from langgraph.graph import StateGraph
         import ollama
         
-        print("✅ Core imports successful")
+        print("[OK] Core imports successful")
         
         # Test Ollama connection (basic)
         try:
             models = ollama.list()
-            print(f"✅ Ollama connection successful - {len(models.get('models', []))} models available")
+            print(f"[OK] Ollama connection successful - {len(models.get('models', []))} models available")
         except Exception as e:
-            print(f"⚠️  Ollama connection issue: {e}")
+            print(f"[WARNING] Ollama connection issue: {e}")
             print("   Make sure 'ollama serve' is running")
         
         # Test ChatOllama initialization
         try:
             llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434")
-            print("✅ ChatOllama initialization successful")
+            print("[OK] ChatOllama initialization successful")
         except Exception as e:
-            print(f"⚠️  ChatOllama initialization issue: {e}")
+            print(f"[WARNING] ChatOllama initialization issue: {e}")
         
         return True
         
@@ -125,14 +125,14 @@ def test_system():
 
 def main():
     """Main resolution process"""
-    print("🔧 Content Creation System - Dependency Resolution")
+    print("Content Creation System - Dependency Resolution")
     print("=" * 60)
     
     # Step 1: Check what's working
     essential_ok = check_essential_packages()
     
     if essential_ok:
-        print("\n✅ Great! Essential packages are working.")
+        print("\n[OK] Great! Essential packages are working.")
         print("   The dependency conflicts are with non-essential packages.")
         
         # Step 2: Test the system
@@ -144,19 +144,19 @@ def main():
             print("3. Run the demo: python demo.py")
             return
     
-    print("\n🔧 Attempting to fix conflicts...")
+    print("\nAttempting to fix conflicts...")
     fix_conflicts()
     
-    print("\n🔄 Re-checking after fixes...")
+    print("\nRe-checking after fixes...")
     if check_essential_packages() and test_system():
         print("\n🎉 SUCCESS: System is now working!")
     else:
-        print("\n⚠️  Some issues remain. See suggestions below.")
+        print("\n[WARNING] Some issues remain. See suggestions below.")
         print_suggestions()
 
 def print_suggestions():
     """Print suggestions for manual resolution"""
-    print("\n💡 Manual Resolution Suggestions:")
+    print("\nManual Resolution Suggestions:")
     print("-" * 40)
     print("1. Clean installation approach:")
     print("   rm -rf venv")
