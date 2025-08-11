@@ -144,11 +144,10 @@ class WriterAgent:
         
         logger.info(f"Writer Agent: Content created - {word_count} words, {reading_time} min read")
         
-        # Return only the updates to the state as a dictionary
-        return {
-            "draft": draft,
-            "metadata": state["metadata"]
-        }
+        # Update state with draft while preserving existing state
+        updated_state = state.copy()
+        updated_state["draft"] = draft
+        return updated_state
     
     def _create_writing_prompt(self, request, plan, research) -> str:
         """

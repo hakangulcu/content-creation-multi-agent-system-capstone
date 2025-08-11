@@ -406,7 +406,7 @@ class ContentCreationWorkflow:
         # Compile the workflow
         return workflow.compile()
     
-    async def create_content(self, content_request: ContentRequest) -> ContentCreationState:
+    async def create_content(self, content_request: ContentRequest, progress_callback=None) -> ContentCreationState:
         """Execute the complete content creation workflow with security validation"""
         
         # Validate and sanitize input request
@@ -453,12 +453,19 @@ class ContentCreationWorkflow:
         )
         
         try:
-            # Execute workflow with timeout protection
+            # Execute workflow with timeout protection and progress tracking
             workflow_timeout = float(os.getenv("WORKFLOW_TIMEOUT", "300"))  # 5 minutes default
-            final_state = await asyncio.wait_for(
-                self.workflow.ainvoke(state),
-                timeout=workflow_timeout
-            )
+            
+            if progress_callback:
+                final_state = await asyncio.wait_for(
+                    self._execute_workflow_with_progress(state, progress_callback),
+                    timeout=workflow_timeout
+                )
+            else:
+                final_state = await asyncio.wait_for(
+                    self.workflow.ainvoke(state),
+                    timeout=workflow_timeout
+                )
             
             # Add completion metadata
             final_state["metadata"]["workflow_end_time"] = datetime.now().isoformat()
@@ -492,6 +499,81 @@ class ContentCreationWorkflow:
                 error_type=type(e).__name__
             )
             raise
+    
+    async def _execute_workflow_with_progress(self, state: ContentCreationState, progress_callback) -> ContentCreationState:
+        """Execute workflow with progress tracking for each agent"""
+        
+        # Define the agent execution order and their display names
+        agent_steps = [
+            ("research", "Research & Data Gathering"),
+            ("planning", "Content Planning"), 
+            ("writing", "Writing Content"),
+            ("editing", "Editing & Refinement"),
+            ("seo_optimization", "SEO Optimization"),
+            ("quality_assurance", "Quality Assurance")
+        ]
+        
+        current_state = state
+        
+        for i, (agent_key, display_name) in enumerate(agent_steps):
+            # Update progress before each agent
+            progress = i / len(agent_steps)
+            progress_callback(progress, display_name, i + 1, len(agent_steps))
+            
+            # Execute the specific agent
+            if agent_key == "research":
+                current_state = await self._execute_research(current_state)
+            elif agent_key == "planning":
+                current_state = await self._execute_planning(current_state)
+            elif agent_key == "writing":
+                current_state = await self._execute_writing(current_state)
+            elif agent_key == "editing":
+                current_state = await self._execute_editing(current_state)
+            elif agent_key == "seo_optimization":
+                current_state = await self._execute_seo(current_state)
+            elif agent_key == "quality_assurance":
+                current_state = await self._execute_qa(current_state)
+        
+        # Final progress update
+        progress_callback(1.0, "Content generation completed", len(agent_steps), len(agent_steps))
+        
+        return current_state
+    
+    async def _execute_research(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute research agent"""
+        from agents.research_agent import ResearchAgent
+        agent = ResearchAgent(self.llm)
+        return await agent.research(state)
+    
+    async def _execute_planning(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute planning agent"""
+        from agents.planning_agent import PlanningAgent
+        agent = PlanningAgent(self.llm)
+        return await agent.plan_content(state)
+    
+    async def _execute_writing(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute writing agent"""
+        from agents.writer_agent import WriterAgent
+        agent = WriterAgent(self.llm)
+        return await agent.write_content(state)
+    
+    async def _execute_editing(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute editing agent"""
+        from agents.editor_agent import EditorAgent
+        agent = EditorAgent(self.llm)
+        return await agent.edit_content(state)
+    
+    async def _execute_seo(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute SEO agent"""
+        from agents.seo_agent import SEOAgent
+        agent = SEOAgent(self.llm)
+        return await agent.optimize_seo(state)
+    
+    async def _execute_qa(self, state: ContentCreationState) -> ContentCreationState:
+        """Execute QA agent"""
+        from agents.qa_agent import QualityAssuranceAgent
+        agent = QualityAssuranceAgent(self.llm)
+        return await agent.finalize_content(state)
 
 # =============================================================================
 # DEMO AND TESTING

@@ -263,28 +263,17 @@ def generate_content(content_request: ContentRequest):
     progress_bar = st.progress(0)
     status_text = st.empty()
     
-    # Progress stages
-    stages = [
-        "Research & Data Gathering",
-        "Content Planning", 
-        "Writing Content",
-        "Editing & Refinement",
-        "SEO Optimization",
-        "Quality Assurance"
-    ]
+    # Progress callback function
+    def progress_callback(progress: float, stage_name: str, current_step: int, total_steps: int):
+        progress_bar.progress(progress)
+        status_text.text(f"{stage_name}... ({current_step}/{total_steps})")
     
     try:
         # Start generation
         start_time = time.time()
         
-        for i, stage in enumerate(stages):
-            progress = (i + 1) / len(stages)
-            progress_bar.progress(progress)
-            status_text.text(f"{stage}... ({i+1}/{len(stages)})")
-            time.sleep(0.5)  # Small delay for UX
-        
-        # Execute the workflow
-        result = asyncio.run(workflow.create_content(content_request))
+        # Execute the workflow with progress tracking
+        result = asyncio.run(workflow.create_content(content_request, progress_callback))
         
         end_time = time.time()
         duration = end_time - start_time

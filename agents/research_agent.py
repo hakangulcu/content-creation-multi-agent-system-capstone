@@ -177,10 +177,10 @@ class ResearchAgent:
         logger.info(f"Research Agent: Completed research with {len(all_sources)} sources")
         
         # Return only the updates to the state as a dictionary
-        return {
-            "research_data": research_data,
-            "metadata": state["metadata"]
-        }
+        # Update state with research data while preserving existing state
+        updated_state = state.copy()
+        updated_state["research_data"] = research_data
+        return updated_state
     
     def _generate_research_queries(self, request) -> List[str]:
         """

@@ -169,12 +169,8 @@ class QualityAssuranceAgent:
         logger.info(f"QA Agent: Content finalized and saved to {save_result.get('filepath', 'N/A')}")
         logger.info(f"QA Agent: Final quality score: {quality_assessment.get('overall_score', 'N/A')}/100")
         
-        # Return only the updates to the state as a dictionary
-        return {
-            "final_content": state["final_content"],
-            "metadata": state["metadata"],
-            "feedback_history": state["feedback_history"]
-        }
+        # Return updated state preserving all fields
+        return state
     
     async def _conduct_quality_assessment(self, draft, request, state) -> Dict[str, Any]:
         """

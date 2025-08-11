@@ -259,12 +259,11 @@ class SEOAgent:
             seo_analysis.get("seo_score", 0), final_seo_analysis.get("seo_score", 0)
         )
         
-        # Return only the updates to the state as a dictionary
-        return {
-            "draft": updated_draft,
-            "analysis": updated_analysis,
-            "metadata": state["metadata"]
-        }
+        # Update state while preserving existing state
+        updated_state = state.copy()
+        updated_state["draft"] = updated_draft
+        updated_state["analysis"] = updated_analysis
+        return updated_state
     
     def _assess_optimization_needs(self, seo_analysis: Dict[str, Any], request) -> bool:
         """
