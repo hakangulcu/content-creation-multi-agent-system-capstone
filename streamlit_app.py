@@ -9,6 +9,8 @@ import streamlit as st
 import asyncio
 import time
 import json
+import logging
+import traceback
 from datetime import datetime
 from typing import Dict, Any, Optional
 import os
@@ -16,6 +18,20 @@ import sys
 
 # Add the current directory to Python path to import local modules
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Setup logging for Streamlit app
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/streamlit.log', mode='a'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Ensure logs directory exists
+os.makedirs('logs', exist_ok=True)
 
 from main import ContentCreationWorkflow
 from types_shared import ContentRequest, ContentType
@@ -47,116 +63,185 @@ def init_session_state():
 
 @st.cache_resource
 def initialize_workflow():
-    """Initialize and cache the workflow instance."""
+    """Initialize and cache the workflow instance with enhanced error handling."""
     try:
+        # Validate environment configuration
         model_name = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        
+        if not model_name or not base_url:
+            raise ValueError("Missing Ollama configuration. Set OLLAMA_MODEL and OLLAMA_BASE_URL environment variables.")
+        
+        # Validate URL format
+        if not base_url.startswith(('http://', 'https://')):
+            raise ValueError(f"Invalid Ollama base URL format: {base_url}")
+        
+        logger.info(f"Initializing workflow with model: {model_name}, base_url: {base_url}")
         
         workflow = ContentCreationWorkflow(
             model_name=model_name, 
             base_url=base_url
         )
+        
+        logger.info("Workflow initialized successfully")
         return workflow, None
+        
+    except ImportError as e:
+        error_msg = f"Import error - missing dependencies: {e}"
+        logger.error(error_msg)
+        return None, error_msg
+    except ValueError as e:
+        error_msg = f"Configuration error: {e}"
+        logger.error(error_msg)
+        return None, error_msg
     except Exception as e:
-        return None, str(e)
+        error_msg = f"Workflow initialization failed: {e}"
+        logger.error(f"{error_msg}\n{traceback.format_exc()}")
+        return None, error_msg
 
 
 def display_header():
-    """Display the application header."""
-    st.title("Content Creation AI System")
-    st.markdown("""
-    **Powered by Multi-Agent AI Pipeline**
-    
-    Transform your ideas into high-quality, SEO-optimized content using our sophisticated 
-    6-agent system running entirely offline with local Ollama models.
-    """)
-    
-    # System status indicator
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        workflow, error = initialize_workflow()
-        if workflow:
-            st.success("System Online")
-        else:
-            st.error(f"System Offline: {error}")
-    
-    with col2:
-        health = get_system_health()
-        breakers = health.get("circuit_breakers", {})
-        open_breakers = sum(1 for cb in breakers.values() if cb["state"] == "open")
-        if open_breakers == 0:
-            st.info("All Services Healthy")
-        else:
-            st.warning(f"{open_breakers} Service(s) Degraded")
-    
-    with col3:
-        if st.session_state.generation_history:
-            success_rate = sum(1 for h in st.session_state.generation_history if h.get("success", False))
-            success_rate = (success_rate / len(st.session_state.generation_history)) * 100
-            st.metric("Success Rate", f"{success_rate:.1f}%")
-        else:
-            st.metric("Success Rate", "N/A")
+    """Display the application header with enhanced error handling."""
+    try:
+        st.title("Content Creation AI System")
+        st.markdown("""
+        **Powered by Multi-Agent AI Pipeline**
+        
+        Transform your ideas into high-quality, SEO-optimized content using our sophisticated 
+        6-agent system running entirely offline with local Ollama models.
+        """)
+        
+        # System status indicator
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            try:
+                workflow, error = initialize_workflow()
+                if workflow:
+                    st.success("System Online")
+                else:
+                    st.error(f"System Offline: {error[:100]}..." if len(str(error)) > 100 else f"System Offline: {error}")
+            except Exception as e:
+                logger.error(f"Error checking workflow status: {e}")
+                st.error("System Status: Unknown")
+        
+        with col2:
+            try:
+                health = get_system_health()
+                breakers = health.get("circuit_breakers", {})
+                open_breakers = sum(1 for cb in breakers.values() if cb.get("state") == "open")
+                if open_breakers == 0:
+                    st.info("All Services Healthy")
+                else:
+                    st.warning(f"{open_breakers} Service(s) Degraded")
+            except Exception as e:
+                logger.error(f"Error checking system health: {e}")
+                st.info("Health Status: Unknown")
+        
+        with col3:
+            try:
+                if st.session_state.generation_history:
+                    success_rate = sum(1 for h in st.session_state.generation_history if h.get("success", False))
+                    success_rate = (success_rate / len(st.session_state.generation_history)) * 100
+                    st.metric("Success Rate", f"{success_rate:.1f}%")
+                else:
+                    st.metric("Success Rate", "N/A")
+            except Exception as e:
+                logger.error(f"Error calculating success rate: {e}")
+                st.metric("Success Rate", "Error")
+                
+    except Exception as e:
+        logger.error(f"Error in display_header: {e}\n{traceback.format_exc()}")
+        st.error("Error displaying header. Check system logs.")
 
 
 def display_sidebar():
-    """Display the sidebar with configuration and system info."""
-    st.sidebar.header("Configuration")
-    
-    # Model settings
-    st.sidebar.subheader("Model Settings")
-    model_name = st.sidebar.text_input(
-        "Ollama Model", 
-        value=os.getenv("OLLAMA_MODEL", "llama3.1:8b"),
-        help="The Ollama model to use for content generation"
-    )
-    
-    base_url = st.sidebar.text_input(
-        "Ollama Base URL",
-        value=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-        help="URL of your Ollama server"
-    )
-    
-    # Advanced options
-    st.sidebar.subheader("Advanced Options")
-    workflow_timeout = st.sidebar.slider(
-        "Workflow Timeout (seconds)",
-        min_value=60,
-        max_value=600,
-        value=300,
-        help="Maximum time to wait for content generation"
-    )
-    
-    enable_content_filtering = st.sidebar.checkbox(
-        "Enable Content Filtering",
-        value=True,
-        help="Apply content filtering and moderation"
-    )
-    
-    # System monitoring
-    st.sidebar.subheader("System Monitor")
-    
-    if st.sidebar.button("Refresh System Health"):
-        st.rerun()
-    
-    # Performance stats
-    stats = get_performance_stats("main.ContentCreationWorkflow.create_content", 60)
-    if stats and "error" not in stats:
-        st.sidebar.metric("Operations (1h)", stats["total_operations"])
-        st.sidebar.metric("Success Rate", f"{stats['success_rate']:.1%}")
-        if stats["average_duration"] > 0:
-            st.sidebar.metric("Avg Duration", f"{stats['average_duration']:.1f}s")
-    
-    # Generation history
-    if st.session_state.generation_history:
-        st.sidebar.subheader("Recent Generations")
-        for i, entry in enumerate(reversed(st.session_state.generation_history[-5:])):
-            with st.sidebar.expander(f"{entry['topic'][:20]}..." if len(entry['topic']) > 20 else entry['topic']):
-                st.write(f"**Type:** {entry['content_type']}")
-                st.write(f"**Status:** {'Success' if entry.get('success', False) else 'Failed'}")
-                st.write(f"**Time:** {entry['timestamp']}")
-                if entry.get('word_count'):
-                    st.write(f"**Words:** {entry['word_count']}")
+    """Display the sidebar with configuration and system info with error handling."""
+    try:
+        st.sidebar.header("Configuration")
+        
+        # Model settings with validation
+        st.sidebar.subheader("Model Settings")
+        model_name = st.sidebar.text_input(
+            "Ollama Model", 
+            value=os.getenv("OLLAMA_MODEL", "llama3.1:8b"),
+            help="The Ollama model to use for content generation"
+        )
+        
+        base_url = st.sidebar.text_input(
+            "Ollama Base URL",
+            value=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+            help="URL of your Ollama server"
+        )
+        
+        # Validate URL format
+        if base_url and not base_url.startswith(('http://', 'https://')):
+            st.sidebar.warning("URL should start with http:// or https://")
+        
+        # Advanced options
+        st.sidebar.subheader("Advanced Options")
+        workflow_timeout = st.sidebar.slider(
+            "Workflow Timeout (seconds)",
+            min_value=60,
+            max_value=600,
+            value=300,
+            help="Maximum time to wait for content generation"
+        )
+        
+        enable_content_filtering = st.sidebar.checkbox(
+            "Enable Content Filtering",
+            value=True,
+            help="Apply content filtering and moderation"
+        )
+        
+        # System monitoring
+        st.sidebar.subheader("System Monitor")
+        
+        if st.sidebar.button("Refresh System Health"):
+            st.rerun()
+        
+        # Performance stats with error handling
+        try:
+            stats = get_performance_stats("main.ContentCreationWorkflow.create_content", 60)
+            if stats and "error" not in stats:
+                st.sidebar.metric("Operations (1h)", stats.get("total_operations", 0))
+                st.sidebar.metric("Success Rate", f"{stats.get('success_rate', 0):.1%}")
+                if stats.get("average_duration", 0) > 0:
+                    st.sidebar.metric("Avg Duration", f"{stats['average_duration']:.1f}s")
+            else:
+                st.sidebar.info("Performance stats unavailable")
+        except Exception as stats_error:
+            logger.error(f"Error getting performance stats: {stats_error}")
+            st.sidebar.info("Performance stats error")
+        
+        # Generation history with error handling
+        try:
+            if st.session_state.generation_history:
+                st.sidebar.subheader("Recent Generations")
+                recent_history = list(reversed(st.session_state.generation_history[-5:]))
+                
+                for i, entry in enumerate(recent_history):
+                    if not isinstance(entry, dict):
+                        continue
+                        
+                    topic = entry.get('topic', 'Unknown Topic')
+                    display_topic = f"{topic[:20]}..." if len(topic) > 20 else topic
+                    
+                    with st.sidebar.expander(display_topic):
+                        st.write(f"**Type:** {entry.get('content_type', 'Unknown')}")
+                        st.write(f"**Status:** {'Success' if entry.get('success', False) else 'Failed'}")
+                        st.write(f"**Time:** {entry.get('timestamp', 'Unknown')}")
+                        if entry.get('word_count'):
+                            st.write(f"**Words:** {entry['word_count']}")
+                        if not entry.get('success', False) and entry.get('error'):
+                            st.write(f"**Error:** {str(entry['error'])[:50]}..." if len(str(entry['error'])) > 50 else str(entry['error']))
+        except Exception as history_error:
+            logger.error(f"Error displaying generation history: {history_error}")
+            st.sidebar.error("Error loading history")
+            
+    except Exception as e:
+        logger.error(f"Error in display_sidebar: {e}\n{traceback.format_exc()}")
+        st.sidebar.error("Sidebar error. Check logs.")
 
 
 def display_content_form():
@@ -244,42 +329,95 @@ def display_content_form():
                 
                 # Start content generation
                 st.session_state.is_generating = True
-                generate_content(content_request)
+                
+                # Create a wrapper to run the async function
+                def run_content_generation():
+                    try:
+                        return asyncio.run(generate_content(content_request))
+                    except Exception as e:
+                        logger.error(f"Content generation wrapper error: {e}")
+                        st.error(f"Content generation failed: {e}")
+                        st.session_state.is_generating = False
+                
+                run_content_generation()
                 
             except Exception as e:
                 st.error(f"Error creating request: {str(e)}")
 
 
-def generate_content(content_request: ContentRequest):
-    """Generate content using the multi-agent system."""
-    workflow, error = initialize_workflow()
-    
-    if not workflow:
-        st.error(f"Cannot generate content: {error}")
-        st.session_state.is_generating = False
-        return
-    
-    # Create progress tracking
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
-    # Progress callback function
-    def progress_callback(progress: float, stage_name: str, current_step: int, total_steps: int):
-        progress_bar.progress(progress)
-        status_text.text(f"{stage_name}... ({current_step}/{total_steps})")
+async def generate_content(content_request: ContentRequest):
+    """Generate content using the multi-agent system with comprehensive error handling."""
+    workflow = None
+    progress_bar = None
+    status_text = None
     
     try:
-        # Start generation
+        # Initialize workflow
+        workflow, error = initialize_workflow()
+        
+        if not workflow:
+            error_msg = f"Cannot generate content: {error}"
+            logger.error(error_msg)
+            st.error(error_msg)
+            st.session_state.is_generating = False
+            return
+        
+        # Validate content request
+        if not content_request or not hasattr(content_request, 'topic'):
+            raise ValueError("Invalid content request provided")
+        
+        if not content_request.topic or len(content_request.topic.strip()) < 3:
+            raise ValueError("Topic must be at least 3 characters long")
+        
+        logger.info(f"Starting content generation for topic: {content_request.topic}")
+        
+        # Create progress tracking
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        # Progress callback function with error handling
+        def progress_callback(progress: float, stage_name: str, current_step: int, total_steps: int):
+            try:
+                # Validate progress values
+                progress = max(0, min(1, progress))  # Clamp between 0 and 1
+                stage_name = str(stage_name) if stage_name else "Processing"
+                current_step = max(1, int(current_step)) if current_step else 1
+                total_steps = max(1, int(total_steps)) if total_steps else 1
+                
+                if progress_bar:
+                    progress_bar.progress(progress)
+                if status_text:
+                    status_text.text(f"{stage_name}... ({current_step}/{total_steps})")
+            except Exception as progress_error:
+                logger.error(f"Progress callback error: {progress_error}")
+        
+        # Start generation with timeout
         start_time = time.time()
         
-        # Execute the workflow with progress tracking
-        result = asyncio.run(workflow.create_content(content_request, progress_callback))
+        try:
+            # Execute the workflow with timeout protection
+            result = await asyncio.wait_for(
+                workflow.create_content(content_request, progress_callback),
+                timeout=600.0  # 10 minute timeout
+            )
+        except asyncio.TimeoutError:
+            raise Exception("Content generation timed out after 10 minutes")
         
         end_time = time.time()
         duration = end_time - start_time
         
+        # Validate result
+        if not result or not isinstance(result, dict):
+            raise ValueError("Invalid result returned from workflow")
+        
         # Store result
         st.session_state.current_result = result
+        
+        # Safely extract word count
+        try:
+            word_count = result.get("draft", {}).word_count if result.get("draft") else 0
+        except (AttributeError, TypeError):
+            word_count = 0
         
         # Update history
         history_entry = {
@@ -288,39 +426,83 @@ def generate_content(content_request: ContentRequest):
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "success": True,
             "duration": duration,
-            "word_count": result["draft"].word_count if result.get("draft") else 0
+            "word_count": word_count
         }
         st.session_state.generation_history.append(history_entry)
         
         # Clear progress
-        progress_bar.progress(1.0)
-        status_text.text("Content generation completed!")
+        if progress_bar:
+            progress_bar.progress(1.0)
+        if status_text:
+            status_text.text("Content generation completed!")
         
         # Success message
+        logger.info(f"Content generation completed successfully in {duration:.1f}s")
         st.success(f"Content generated successfully in {duration:.1f} seconds!")
         
     except ValidationError as e:
-        st.error(f"Validation Error: {str(e)}")
+        error_msg = f"Validation Error: {str(e)}"
+        logger.error(error_msg)
+        st.error(error_msg)
         st.info("Please review your input and try again.")
         
-    except asyncio.TimeoutError:
-        st.error("Content generation timed out. Please try again with a shorter word count or simpler topic.")
-        
-    except Exception as e:
-        st.error(f"Generation failed: {str(e)}")
-        
-        # Log failure
+        # Log validation failure
         history_entry = {
-            "topic": content_request.topic,
-            "content_type": content_request.content_type.value,
+            "topic": getattr(content_request, 'topic', 'Unknown'),
+            "content_type": getattr(content_request, 'content_type', ContentType.BLOG_POST).value,
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "success": False,
-            "error": str(e)
+            "error": str(e),
+            "error_type": "ValidationError"
+        }
+        st.session_state.generation_history.append(history_entry)
+        
+    except asyncio.TimeoutError:
+        error_msg = "Content generation timed out. Please try again with a shorter word count or simpler topic."
+        logger.error(error_msg)
+        st.error(error_msg)
+        
+        # Log timeout failure
+        history_entry = {
+            "topic": getattr(content_request, 'topic', 'Unknown'),
+            "content_type": getattr(content_request, 'content_type', ContentType.BLOG_POST).value,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "success": False,
+            "error": "Timeout",
+            "error_type": "TimeoutError"
+        }
+        st.session_state.generation_history.append(history_entry)
+        
+    except Exception as e:
+        error_msg = f"Generation failed: {str(e)}"
+        logger.error(f"{error_msg}\n{traceback.format_exc()}")
+        st.error(error_msg)
+        
+        # Show troubleshooting tips for common errors
+        if "Connection" in str(e) or "refused" in str(e):
+            st.info("💡 **Troubleshooting:** Make sure Ollama is running with `ollama serve`")
+        elif "model" in str(e).lower():
+            st.info(f"💡 **Troubleshooting:** Install the required model with `ollama pull {os.getenv('OLLAMA_MODEL', 'llama3.1:8b')}`")
+        
+        # Log general failure
+        history_entry = {
+            "topic": getattr(content_request, 'topic', 'Unknown'),
+            "content_type": getattr(content_request, 'content_type', ContentType.BLOG_POST).value,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "success": False,
+            "error": str(e)[:200],  # Truncate very long error messages
+            "error_type": type(e).__name__
         }
         st.session_state.generation_history.append(history_entry)
     
     finally:
         st.session_state.is_generating = False
+        
+        # Clean up progress indicators
+        if progress_bar:
+            progress_bar.empty()
+        if status_text:
+            status_text.empty()
 
 
 def display_results():
@@ -506,52 +688,75 @@ def display_examples():
 
 
 def main():
-    """Main Streamlit application."""
-    init_session_state()
-    
-    # Display header
-    display_header()
-    
-    # Display sidebar
-    display_sidebar()
-    
-    # Check if currently generating
-    if st.session_state.is_generating:
-        st.info("Content generation in progress...")
-        st.stop()
-    
-    # Main content area
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        # Content creation form
-        display_content_form()
+    """Main Streamlit application with comprehensive error handling."""
+    try:
+        # Initialize session state
+        init_session_state()
         
-        # Results display
-        if st.session_state.current_result:
-            display_results()
-    
-    with col2:
-        # Examples and tips
-        display_examples()
+        # Display header
+        display_header()
         
-        # Tips section
-        st.subheader("Tips for Better Results")
-        st.markdown("""
-        **Topic Ideas:**
-        - Be specific and focused
-        - Include your target keywords
-        - Consider your audience's interests
+        # Display sidebar
+        display_sidebar()
         
-        **Audience Targeting:**
-        - Define demographics clearly
-        - Consider expertise level
-        - Think about their goals
+        # Check if currently generating
+        if st.session_state.is_generating:
+            st.info("Content generation in progress...")
+            st.stop()
         
-        **SEO Optimization:**
-        - Use relevant keywords naturally
-        - Include long-tail keywords
-        - Consider search intent
+        # Main content area
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            try:
+                # Content creation form
+                display_content_form()
+                
+                # Results display
+                if st.session_state.current_result:
+                    display_results()
+            except Exception as form_error:
+                logger.error(f"Error in content form/results: {form_error}\n{traceback.format_exc()}")
+                st.error("Error in content section. Check logs for details.")
+        
+        with col2:
+            try:
+                # Examples and tips
+                display_examples()
+                
+                # Tips section
+                st.subheader("Tips for Better Results")
+                st.markdown("""
+                **Topic Ideas:**
+                - Be specific and focused
+                - Include your target keywords
+                - Consider your audience's interests
+                
+                **Audience Targeting:**
+                - Define demographics clearly
+                - Consider expertise level
+                - Think about their goals
+                
+                **SEO Optimization:**
+                - Use relevant keywords naturally
+                - Include long-tail keywords
+                - Consider search intent
+                """)
+            except Exception as tips_error:
+                logger.error(f"Error in tips section: {tips_error}")
+                st.error("Error loading tips section")
+                
+    except Exception as e:
+        logger.critical(f"Critical error in main application: {e}\n{traceback.format_exc()}")
+        st.error("Critical application error. Please check the logs and restart the application.")
+        
+        # Show basic troubleshooting info
+        st.info("""
+        **Troubleshooting:**
+        1. Check that Ollama is running: `ollama serve`
+        2. Verify required models are installed
+        3. Check logs in the `logs/` directory
+        4. Restart the Streamlit application
         """)
 
 
